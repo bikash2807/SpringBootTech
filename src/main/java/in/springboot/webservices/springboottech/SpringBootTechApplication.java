@@ -1,4 +1,4 @@
-package in.goindigo.webservice.springboottech;
+package in.springboot.webservice.springboottech;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

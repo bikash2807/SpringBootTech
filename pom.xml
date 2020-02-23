@@ -86,26 +86,21 @@
         		<artifactId>camel-restlet</artifactId>
         		<version>2.15.1</version>
       		</dependency>
-		<!--<dependency>
-           		<groupId>com.microsoft.sqlserver</groupId>
-           		<artifactId>sqljdbc4</artifactId>
-           		<version>4.0</version>
-		</dependency>-->
 		<dependency>
-	    		<groupId>org.springframework</groupId>
-	    		<artifactId>spring-jdbc</artifactId>
-	    		<version>5.1.5.RELEASE</version>
+    			<groupId>mysql</groupId>
+    			<artifactId>mysql-connector-java</artifactId>
+    			<version>5.1.39</version>
 		</dependency>
 		<dependency>
-          		<groupId>org.apache.camel</groupId>
-          		<artifactId>camel-mybatis</artifactId>
-          		<version>2.15.1</version>
-      		</dependency>
-      		<dependency>
-            		<groupId>org.mybatis</groupId>
-            		<artifactId>mybatis-spring</artifactId>
-            		<version>1.2.3</version>
-      		</dependency>
+			<groupId>commons-dbcp</groupId>
+			<artifactId>commons-dbcp</artifactId>
+			<version>1.4</version>
+		</dependency>
+		<dependency>
+			<groupId>commons-pool</groupId>
+			<artifactId>commons-pool</artifactId>
+			<version>1.5.4</version>
+		</dependency>
     		<dependency>
       			<groupId>org.slf4j</groupId>
       			<artifactId>slf4j-api</artifactId>
