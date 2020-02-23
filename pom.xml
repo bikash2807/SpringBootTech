@@ -8,7 +8,7 @@
 		<version>2.1.4.RELEASE</version>
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
-	<groupId>in.goindigo.webservices.staging</groupId>
+	<groupId>in.springboot.webservices.staging</groupId>
   	<artifactId>SpringBootTech</artifactId>
  	<version>1.0.0</version>
 
@@ -18,6 +18,32 @@
 		<java.version>1.8</java.version>
 		<spring-boot-plugin.version>2.1.4.RELEASE</spring-boot-plugin.version>
 	</properties>
+	<repositories>
+    		<repository>
+      			<releases>
+        			<enabled>true</enabled>
+        			<updatePolicy>never</updatePolicy>
+      			</releases>
+      			<snapshots>
+        			<enabled>false</enabled>
+      			</snapshots>
+      			<id>fuse-public-repository</id>
+      			<name>FuseSource Community Release Repository</name>
+      			<url>https://repo.fusesource.com/nexus/content/groups/public</url>
+    		</repository>
+    		<repository>
+      			<releases>
+        			<enabled>true</enabled>
+        			<updatePolicy>never</updatePolicy>
+      			</releases>
+      			<snapshots>
+        			<enabled>false</enabled>
+      			</snapshots>
+      			<id>red-hat-ga-repository</id>
+      			<name>Red Hat GA Repository</name>
+      			<url>https://maven.repository.redhat.com/ga</url>
+    		</repository>
+	</repositories>
 
 	<dependencies>
 		<dependency>
