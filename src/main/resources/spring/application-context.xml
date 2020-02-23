@@ -1,0 +1,202 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns:camel="http://camel.apache.org/schema/spring"
+        xmlns:cxf="http://camel.apache.org/schema/cxf"
+        xmlns:cxfcore="http://cxf.apache.org/core"
+
+        xsi:schemaLocation="
+                http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+                http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd
+                http://camel.apache.org/schema/cxf http://camel.apache.org/schema/cxf/camel-cxf.xsd
+                http://cxf.apache.org/core http://cxf.apache.org/schemas/core.xsd">
+
+	<bean id="process" class="in.goindigo.webservices.springboottech.Processing"/>
+
+	<!--<bean id="dataSourceIndigoApps" class="org.springframework.jdbc.datasource.SimpleDriverDataSource">
+                <property name="driverClass" value="com.microsoft.sqlserver.jdbc.SQLServerDriver"/>
+                <property name="url" value="jdbc:sqlserver://10.130.100.147:8283;DatabaseName=IndigoApps"/>
+                <property name="username" value="esb.stg.user"/>
+                <property name="password" value="e$bdk23@#$user"/>
+        </bean>
+
+        <bean id="sqlSessionFactoryBean" class="org.mybatis.spring.SqlSessionFactoryBean">
+                <property name="dataSource" ref="dataSourceIndigoApps"/>
+                <property name="configLocation" value="SqlMapConfig.xml"/>
+        </bean>
+
+        <bean id="mybatis" class="org.apache.camel.component.mybatis.MyBatisComponent">
+                <property name="sqlSessionFactory" ref="sqlSessionFactoryBean"/>
+        </bean>
+
+        <bean id="dataSourceIGO" class="org.springframework.jdbc.datasource.SimpleDriverDataSource">
+                <property name="driverClass" value="com.microsoft.sqlserver.jdbc.SQLServerDriver"/>
+                <property name="url" value="jdbc:sqlserver://10.130.100.147:8283;DatabaseName=IGO"/>
+                <property name="username" value="esb.stg.user"/>
+                <property name="password" value="e$bdk23@#$user"/>
+	</bean>-->
+
+	<camelContext id="SpringBootTech" xmlns="http://camel.apache.org/schema/spring" streamCache="true">
+
+	<dataFormats>
+	     <json id="jsonOrder" library="Jackson"/>
+        </dataFormats>
+ 
+	<!--<route id="GetFlightData">
+		<from uri="restlet:http://0.0.0.0:9080/api/getFlightData?restletMethod=POST"/>		
+		<doTry>
+		   <log message="SpringBootTech001 Hit Received at GetFlightData with ${body} ** ${date:now:yyyy-MM-dd HH:mm:ss}"/>
+
+		   <unmarshal ref="jsonOrder"/>
+		   <setHeader headerName="fromDate"><simple>${body[FromDate]}</simple></setHeader>
+		   <setHeader headerName="toDate"><simple>${body[ToDate]}</simple></setHeader>
+                   <setBody><simple>${in.headers}</simple></setBody>
+		   <log message="SpringBootTech002 Body is ${body}"/>
+		   <to uri="mybatis:aimsdata?statementType=SelectList"/>
+		   <choice>
+                   	<when><simple>${body} == '[]'</simple>
+                              <removeHeaders pattern="*"/>
+                              <setHeader headerName="Content-Type"><simple>application/json</simple></setHeader>
+                              <setBody><simple>{"error":"No Record Found"}</simple></setBody>
+                              <setHeader headerName="CamelRestletResponse"><simple>${body}</simple></setHeader>
+                        </when>
+                        <otherwise>
+                   	      <bean ref="process" method="getBody"/>
+                              <marshal ref="jsonOrder"/>
+                              <removeHeaders pattern="*"/>
+                              <setHeader headerName="Content-Type"><simple>application/json</simple></setHeader>
+                              <setHeader headerName="CamelRestletResponse"><simple>${body}</simple></setHeader>
+                        </otherwise>
+                    </choice>
+
+		    <doCatch>
+                           <exception>com.fasterxml.jackson.core.JsonParseException</exception>
+	                   <log message="SpringBootTech003 exception ${exception.message} at ${date:now:yyyy-MM-dd'T'HH:mm:ss:SSS}"/>
+                           <removeHeaders pattern="*"/>
+                           <setHeader headerName="Content-Type"><simple>application/json</simple></setHeader>
+                           <setBody><simple>{"error":"Invalid Json passed as input"} </simple> </setBody>
+                           <setHeader headerName="CamelRestletResponse"><simple>${body}</simple></setHeader>
+                    </doCatch>
+                    <doCatch>
+                           <exception>com.fasterxml.jackson.databind.JsonMappingException</exception>
+	                   <log message="SpringBootTech004 exception ${exception.message} at ${date:now:yyyy-MM-dd'T'HH:mm:ss:SSS}"/>
+                           <removeHeaders pattern="*"/>
+                           <setHeader headerName="Content-Type"><simple>application/json</simple></setHeader>
+                           <setBody><simple>{"error":"Invalid Json passed as input"}</simple> </setBody>
+                           <setHeader headerName="CamelRestletResponse"><simple>${body}</simple></setHeader>
+                    </doCatch>
+                    <doCatch>
+                           <exception>com.microsoft.sqlserver.jdbc.SQLServerException</exception>
+	                   <log message="SpringBootTech006 exception ${exception.message} at ${date:now:yyyy-MM-dd'T'HH:mm:ss:SSS}"/>
+			   <removeHeaders pattern="*"/>
+                           <setHeader headerName="Content-Type"><simple>application/json</simple></setHeader>
+                           <setBody><simple>{"error":"The TCP/IP connection of db has been failed"}</simple></setBody>
+                           <setHeader headerName="CamelRestletResponse"><simple>${body}</simple></setHeader>
+                    </doCatch>
+                    <doCatch>
+                           <exception>java.lang.RuntimeException</exception>
+	                   <log message="SpringBootTech007 exception ${exception.message} at ${date:now:yyyy-MM-dd'T'HH:mm:ss:SSS}"/>
+                           <removeHeaders pattern="*"/>
+                           <setHeader headerName="Content-Type"><simple>application/json</simple></setHeader>
+                           <setBody><simple>{"error":"${exception.message}"}</simple></setBody>
+                           <setHeader headerName="CamelRestletResponse"><simple>${body}</simple></setHeader>
+                    </doCatch>
+                    <doCatch>
+                           <exception>java.lang.Exception</exception>
+	                   <log message="SpringBootTech008 exception ${exception.message} at ${date:now:yyyy-MM-dd'T'HH:mm:ss:SSS}"/>
+                           <removeHeaders pattern="*"/>
+                           <setHeader headerName="Content-Type"><simple>application/json</simple></setHeader>
+                           <setBody><simple>{"error":"${exception.message}"}</simple></setBody>
+                           <setHeader headerName="CamelRestletResponse"><simple>${body}</simple></setHeader>
+                    </doCatch>
+		</doTry>
+	</route>
+
+	<route id="GetCrewonBoard">
+                <from uri="restlet:http://0.0.0.0:9080/api/getCrewonBoard?restletMethod=POST"/>
+                <doTry>
+                   <log message="SpringBootTech001 Hit Received at GetCrewonBoard with ${body}** ${date:now:yyyy-MM-dd HH:mm:ss}"/>
+
+                   <unmarshal ref="jsonOrder"/>
+		   <setBody><simple>select Flt, StartTime, EndTTime, EmpNo, FirstName, LastName, AsgCat from vvDataEntity_COB_v3 where flt = ${body[FltNbr]} and starttime between '${body[starttimefrom]}' and '${body[starttimeto]} 23:59:59'</simple></setBody>
+                   <log message="SpringBootTech002 Body is ${body}"/>
+                   <to uri="jdbc:dataSourceIGO?outputType=SelectList"/>
+                   <choice>
+                        <when><simple>${body} == '[]'</simple>
+                              <removeHeaders pattern="*"/>
+                              <setHeader headerName="Content-Type"><simple>application/json</simple></setHeader>
+                              <setBody><simple>{"error":"No Record Found"}</simple></setBody>
+                              <setHeader headerName="CamelRestletResponse"><simple>${body}</simple></setHeader>
+                        </when>
+                        <otherwise>
+                              <marshal ref="jsonOrder"/>
+                              <removeHeaders pattern="*"/>
+                              <setHeader headerName="Content-Type"><simple>application/json</simple></setHeader>
+                              <setHeader headerName="CamelRestletResponse"><simple>${body}</simple></setHeader>
+                        </otherwise>
+                    </choice>
+		    <doCatch>
+                           <exception>com.fasterxml.jackson.core.JsonParseException</exception>
+                           <log message="SpringBootTech003 exception ${exception.message} at ${date:now:yyyy-MM-dd'T'HH:mm:ss:SSS}"/>
+                           <removeHeaders pattern="*"/>
+                           <setHeader headerName="Content-Type"><simple>application/json</simple></setHeader>
+                           <setBody><simple>{"error":"Invalid Json passed as input"} </simple> </setBody>
+                           <setHeader headerName="CamelRestletResponse"><simple>${body}</simple></setHeader>
+                    </doCatch>
+                    <doCatch>
+                           <exception>com.fasterxml.jackson.databind.JsonMappingException</exception>
+                           <log message="SpringBootTech004 exception ${exception.message} at ${date:now:yyyy-MM-dd'T'HH:mm:ss:SSS}"/>
+                           <removeHeaders pattern="*"/>
+                           <setHeader headerName="Content-Type"><simple>application/json</simple></setHeader>
+                           <setBody><simple>{"error":"Invalid Json passed as input"}</simple> </setBody>
+                           <setHeader headerName="CamelRestletResponse"><simple>${body}</simple></setHeader>
+                    </doCatch>
+                    <doCatch>
+                           <exception>com.microsoft.sqlserver.jdbc.SQLServerException</exception>
+                           <log message="SpringBootTech006 exception ${exception.message} at ${date:now:yyyy-MM-dd'T'HH:mm:ss:SSS}"/>
+                           <removeHeaders pattern="*"/>
+                           <setHeader headerName="Content-Type"><simple>application/json</simple></setHeader>
+                           <setBody><simple>{"error":"The TCP/IP connection of db has been failed"}</simple></setBody>
+                           <setHeader headerName="CamelRestletResponse"><simple>${body}</simple></setHeader>
+                    </doCatch>
+                    <doCatch>
+                           <exception>java.lang.RuntimeException</exception>
+                           <log message="SpringBootTech007 exception ${exception.message} at ${date:now:yyyy-MM-dd'T'HH:mm:ss:SSS}"/>
+                           <removeHeaders pattern="*"/>
+                           <setHeader headerName="Content-Type"><simple>application/json</simple></setHeader>
+                           <setBody><simple>{"error":"${exception.message}"}</simple></setBody>
+                           <setHeader headerName="CamelRestletResponse"><simple>${body}</simple></setHeader>
+                    </doCatch>
+		    <doCatch>
+                           <exception>java.lang.Exception</exception>
+                           <log message="SpringBootTech008 exception ${exception.message} at ${date:now:yyyy-MM-dd'T'HH:mm:ss:SSS}"/>
+                           <removeHeaders pattern="*"/>
+                           <setHeader headerName="Content-Type"><simple>application/json</simple></setHeader>
+                           <setBody><simple>{"error":"${exception.message}"}</simple></setBody>
+                           <setHeader headerName="CamelRestletResponse"><simple>${body}</simple></setHeader>
+                    </doCatch>
+                </doTry>
+	</route>-->
+
+	<route id="GetHello">
+                <from uri="restlet:http://0.0.0.0:9080/api/getHello?restletMethod=GET"/>
+                   <log message="SpringBootTech001 Hit Received at GetHello ** ${date:now:yyyy-MM-dd HH:mm:ss}"/>
+
+                   <removeHeaders pattern="*"/>
+                   <setHeader headerName="Content-Type"><simple>application/json</simple></setHeader>
+                   <setBody><simple>{"Message":"Hello World"}</simple></setBody>
+                   <setHeader headerName="CamelRestletResponse"><simple>${body}</simple></setHeader>
+	</route>
+
+	<route id="GetFibonacciSeries">
+                <from uri="restlet:http://0.0.0.0:9080/api/getFibonacciSeries?restletMethod=GET"/>
+                   <log message="SpringBootTech001 Hit Received at GetFibonacciSeries ** ${date:now:yyyy-MM-dd HH:mm:ss}"/>
+		   <bean ref="process" method="getFibonacciResult"/>
+                   <setBody><simple>{"Result":${header.Result}}</simple></setBody>
+                   <removeHeaders pattern="*"/>
+                   <setHeader headerName="Content-Type"><simple>application/json</simple></setHeader>
+                   <setHeader headerName="CamelRestletResponse"><simple>${body}</simple></setHeader>
+        </route>
+
+  </camelContext>
+</beans>
