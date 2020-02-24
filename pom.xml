@@ -12,7 +12,7 @@
   	<artifactId>SpringBootTech</artifactId>
  	<version>1.0.0</version>
 
-  	<name>Indigo :: Bundle :: Camel OSGi Bundle for SpringBootTech Analysis</name>
+  	<name>Bundle :: Camel OSGi Bundle for SpringBootTech Analysis</name>
 
 	<properties>
 		<java.version>1.8</java.version>
