@@ -8,7 +8,7 @@ Method Type : GET
 3. http://0.0.0.0:9080/api/getHello
 Method Type : GET
 
-4. http://0.0.0.0:9080/api/FibonacciSeries
+4. http://0.0.0.0:9080/api/getFibonacciSeries
 Method Type : GET
 
 Docker Build :
